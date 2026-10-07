@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>श्री जगन्नाथ अपार्टमेंट - Monthly Maintenance & Water Ledger</title>
+    <style>
+        :root {
+            --bg-dark: #0a0e17;
+            --primary-gold: #ffb703;
+            --gold-glow: rgba(255, 183, 3, 0.35);
+            --divine-orange: #fb8500;
+            --wing-a-color: #06d6a0;
+            --wing-b-color: #118ab2;
+            --card-bg: rgba(18, 26, 43, 0.88);
+            --border-color: rgba(255, 215, 0, 0.22);
+            --text-main: #f8f9fa;
+            --text-muted: #a0aec0;
+            --danger: #ef476f;
+            --success: #06d6a0;
+            --warning: #ffd166;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            padding-bottom: 60px;
+        }
+
+        /* DYNAMIC ARTISTIC BACKGROUND: JAGANNATH TEMPLE + APARTMENT SKYLINE */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 20%, rgba(251, 133, 0, 0.08) 0%, rgba(10, 14, 23, 0.75) 75%),
+                        linear-gradient(to bottom, rgba(10, 14, 23, 0.3) 0%, rgba(10, 14, 23, 0.95) 100%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .app-container {
+            max-width: 1750px;
+            margin: 0 auto;
+            padding: 20px 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* HEADER SECTION */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 20px 30px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 10px 35px rgba(0,0,0,0.45), 0 0 25px var(--gold-glow);
+        }
+
+        .title-block {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .temple-symbol {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ffb703, #fb8500);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px var(--gold-glow);
+            font-size: 30px;
+        }
+
+        .title-block h1 {
+            font-size: 26px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #fff, #ffb703, #ffd166);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .title-block p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* MONTH CONTROL BAR */
+        .month-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .month-badge {
+            background: rgba(255, 183, 3, 0.15);
+            border: 1px solid var(--primary-gold);
+            color: var(--primary-gold);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        select.month-dropdown {
+            background: #162033;
+            color: #fff;
+            border: 1px solid var(--primary-gold);
+            padding: 9px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .btn {
+            background: #1b263b;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 9px 18px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #fb8500, #ffb703);
+            color: #0b0f19;
+            border: none;
+            font-weight: 700;
+            box-shadow: 0 4px 15px var(--gold-glow);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #ffb703, #ffa200);
+            box-shadow: 0 6px 22px var(--gold-glow);
+        }
+
+        .btn-success {
+            background: #06d6a0;
+            color: #000;
+            border: none;
+        }
+
+        /* MASTER KPI CARDS */
+        .master-stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 18px 20px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--primary-gold);
+        }
+
+        .kpi-card.received::before { background: var(--success); }
+        .kpi-card.pending::before { background: var(--danger); }
+        .kpi-card.water::before { background: var(--wing-b-color); }
+
+        .kpi-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .kpi-sub {
+            font-size: 12px;
+            margin-top: 5px;
+            color: var(--text-muted);
+        }
+
+        /* WING VIEW SWITCHER */
+        .view-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .tab-group {
+            display: flex;
+            background: rgba(22, 32, 51, 0.9);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 4px;
+            border-radius: 12px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--primary-gold);
+            color: #0d131f;
+            box-shadow: 0 2px 10px var(--gold-glow);
+        }
+
+        .search-box {
+            background: #141c2b;
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 9px 18px;
+            border-radius: 10px;
+            color: #fff;
+            width: 280px;
+            outline: none;
+            font-size: 13.5px;
+        }
+
+        .search-box:focus {
+            border-color: var(--primary-gold);
+        }
+
+        /* WINGS SEPARATE BOX CONTAINERS */
+        .wings-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 35px;
+        }
+
+        .wing-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .wing-box.wing-a-box {
+            border-top: 4px solid var(--wing-a-color);
+        }
+
+        .wing-box.wing-b-box {
+            border-top: 4px solid var(--wing-b-color);
+        }
+
+        .wing-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .wing-title-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .wing-badge-icon {
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .wing-a-badge { background: rgba(6, 214, 160, 0.2); color: var(--wing-a-color); border: 1px solid var(--wing-a-color); }
+        .wing-b-badge { background: rgba(17, 138, 178, 0.2); color: #48cae4; border: 1px solid var(--wing-b-color); }
+
+        .wing-summary-chips {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.07);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .chip span { font-weight: 700; color: #fff; margin-left: 4px; }
+
+        /* DATA TABLES */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        table.ledger-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+            min-width: 1400px;
+        }
+
+        table.ledger-table th {
+            background: rgba(13, 20, 32, 0.95);
+            color: #d1d5db;
+            padding: 12px 10px;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            white-space: nowrap;
+        }
+
+        table.ledger-table td {
+            padding: 10px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #e5e7eb;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        table.ledger-table tbody tr:hover {
+            background: rgba(255, 183, 3, 0.05);
+        }
+
+        .flat-tag {
+            font-weight: 800;
+            color: var(--primary-gold);
+            background: rgba(255, 183, 3, 0.12);
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .resident-name {
+            font-weight: 600;
+            color: #fff;
+            max-width: 160px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* INPUT FIELDS INSIDE ROWS */
+        .editable-input {
+            background: #141c2b;
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            color: #ffb703;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 13px;
+            width: 110px;
+            text-align: right;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .editable-input:focus {
+            border-color: #06d6a0;
+            box-shadow: 0 0 8px rgba(6, 214, 160, 0.4);
+            background: #0f1622;
+        }
+
+        .reading-input {
+            width: 82px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        .amt-need {
+            font-weight: 800;
+            color: #fca311;
+        }
+
+        .amt-balance {
+            font-weight: 800;
+            font-size: 13.5px;
+        }
+
+        .bal-danger { color: var(--danger); }
+        .bal-zero { color: var(--success); }
+        .bal-advance { color: #48cae4; }
+
+        /* STATUS BADGES */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-paid { background: rgba(6, 214, 160, 0.2); color: #06d6a0; border: 1px solid #06d6a0; }
+        .status-partial { background: rgba(255, 209, 102, 0.2); color: #ffd166; border: 1px solid #ffd166; }
+        .status-unpaid { background: rgba(239, 71, 111, 0.2); color: #ef476f; border: 1px solid #ef476f; }
+
+        /* RECEIPT MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-card {
+            background: #111827;
+            border: 2px solid var(--primary-gold);
+            border-radius: 18px;
+            width: 95%;
+            max-width: 580px;
+            padding: 30px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), 0 0 30px var(--gold-glow);
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            color: #aaa;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .receipt-slip {
+            background: #fff;
+            color: #111;
+            padding: 24px;
+            border-radius: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            margin-bottom: 20px;
+        }
+
+        .slip-header {
+            text-align: center;
+            border-bottom: 2px dashed #333;
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+        }
+
+        .slip-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 6px 0;
+            font-size: 14px;
+        }
+
+        .slip-total {
+            border-top: 2px dashed #333;
+            border-bottom: 2px dashed #333;
+            padding: 8px 0;
+            margin: 10px 0;
+            font-weight: 800;
+            font-size: 16px;
+        }
+
+        /* PRINT HELPER */
+        @media print {
+            body { background: #fff !important; color: #000 !important; }
+            #bg-canvas, .bg-overlay, header, .month-toolbar, .view-controls, .kpi-card, .btn { display: none !important; }
+            .wing-box { box-shadow: none !important; border: 1px solid #000 !important; page-break-inside: avoid; }
+            table.ledger-table { min-width: 100% !important; font-size: 11px; }
+            table.ledger-table th, table.ledger-table td { color: #000 !important; border-bottom: 1px solid #ccc; }
+            .editable-input { border: none !important; background: transparent !important; color: #000 !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- DYNAMIC BACKGROUND CANVAS -->
+    <canvas id="bg-canvas"></canvas>
+    <div class="bg-overlay"></div>
+
+    <div class="app-container">
+
+        <!-- HEADER -->
+        <header>
+            <div class="title-block">
+                <div class="temple-symbol">🛕</div>
+                <div>
+                    <h1>श्री जगन्नाथ अपार्टमेंट (Shree Jagannath Apartment)</h1>
+                    <p>Wing-Wise Monthly Maintenance & Water Billing Ledger with Dynamic Auto-Calculations</p>
+                </div>
+            </div>
+
+            <div class="month-toolbar">
+                <div class="month-badge">
+                    <span>📅 Mahina:</span>
+                    <select id="monthSelect" class="month-dropdown" onchange="switchMonth(this.value)">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" onclick="generateNextMonth()">
+                    ➕ Agla Mahina (Next Month) Banayein
+                </button>
+
+                <button class="btn" onclick="exportToCSV()">
+                    📥 Export CSV
+                </button>
+
+                <button class="btn btn-success" onclick="window.print()">
+                    🖨️ Print Sheet
+                </button>
+
+                <button class="btn" style="background: rgba(239, 71, 111, 0.2); color: #ef476f; border: 1px solid #ef476f;" onclick="resetToInitialData()">
+                    🔄 Reset Data
+                </button>
+            </div>
+        </header>
+
+        <!-- MASTER SOCIETY OVERVIEW (SUMMARY METRICS) -->
+        <div class="master-stats-row">
+            <div class="kpi-card">
+                <div class="kpi-label">Society Total Demand</div>
+                <div class="kpi-value" id="kpi-total-demand">₹0.00</div>
+                <div class="kpi-sub" id="kpi-units-count">56 Flats Total</div>
+            </div>
+
+            <div class="kpi-card received">
+                <div class="kpi-label">Payment Received (Vasooli)</div>
+                <div class="kpi-value" style="color: var(--success);" id="kpi-total-received">₹0.00</div>
+                <div class="kpi-sub" id="kpi-received-percent">0% Recovered</div>
+            </div>
+
+            <div class="kpi-card pending">
+                <div class="kpi-label">Balance Pending (Baki Rashi)</div>
+                <div class="kpi-value" style="color: var(--danger);" id="kpi-total-pending">₹0.00</div>
+                <div class="kpi-sub">Next Month me carry forward hoga</div>
+            </div>
+
+            <div class="kpi-card water">
+                <div class="kpi-label">Society Water Used</div>
+                <div class="kpi-value" style="color: #48cae4;" id="kpi-total-water">0 L</div>
+                <div class="kpi-sub" id="kpi-water-amt">Rate: ₹0.15/Litre</div>
+            </div>
+        </div>
+
+        <!-- VIEW TOGGLES & SEARCH -->
+        <div class="view-controls">
+            <div class="tab-group">
+                <button class="tab-btn active" onclick="switchWingView('all', this)">🏢 Dono Wings Dekhein</button>
+                <button class="tab-btn" onclick="switchWingView('wing-a', this)">Wing-A Box</button>
+                <button class="tab-btn" onclick="switchWingView('wing-b', this)">Wing-B Box</button>
+            </div>
+
+            <input type="text" id="searchInput" class="search-box" placeholder="🔍 Flat No ya Naam search karein..." onkeyup="filterTables()">
+        </div>
+
+        <!-- WINGS MAIN CONTAINER -->
+        <div class="wings-layout">
+
+            <!-- ================= WING-A BOX ================= -->
+            <div class="wing-box wing-a-box" id="box-wing-a">
+                <div class="wing-box-header">
+                    <div class="wing-title-group">
+                        <span class="wing-badge-icon wing-a-badge">WING - A</span>
+                        <h2 style="font-size: 19px; color: #fff;">Wing-A Maintenance & Water Ledger</h2>
+                    </div>
+                    <div class="wing-summary-chips">
+                        <div class="chip">Flats: <span id="wa-flats-count">27</span></div>
+                        <div class="chip">Water Used: <span id="wa-water-litres">0 L</span></div>
+                        <div class="chip">Total Demand: <span id="wa-demand" style="color: #fca311;">₹0</span></div>
+                        <div class="chip">Received: <span id="wa-received" style="color: #06d6a0;">₹0</span></div>
+                        <div class="chip">Remaining Baki: <span id="wa-pending" style="color: #ef476f;">₹0</span></div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="ledger-table" id="table-wing-a">
+                        <thead>
+                            <tr>
+                                <th>FLAT</th>
+                                <th>NAME</th>
+                                <th>OLD BAL</th>
+                                <th>METER 1st</th>
+                                <th>METER 31st</th>
+                                <th>WATER (L)</th>
+                                <th>WATER ADV</th>
+                                <th>NET WATER</th>
+                                <th>MAINT.</th>
+                                <th>NEED TO PAY</th>
+                                <th style="background: rgba(255, 183, 3, 0.2);">PAYMENT RECVD (₹)</th>
+                                <th style="background: rgba(239, 71, 111, 0.15);">REMAINING DUE</th>
+                                <th>STATUS</th>
+                                <th>ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-wing-a">
+                            <!-- Injected by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ================= WING-B BOX ================= -->
+            <div class="wing-box wing-b-box" id="box-wing-b">
+                <div class="wing-box-header">
+                    <div class="wing-title-group">
+                        <span class="wing-badge-icon wing-b-badge">WING - B</span>
+                        <h2 style="font-size: 19px; color: #fff;">Wing-B Maintenance, Water & Repair Ledger</h2>
+                    </div>
+                    <div class="wing-summary-chips">
+                        <div class="chip">Flats: <span id="wb-flats-count">29</span></div>
+                        <div class="chip">Water Used: <span id="wb-water-litres">0 L</span></div>
+                        <div class="chip">Total Demand: <span id="wb-demand" style="color: #fca311;">₹0</span></div>
+                        <div class="chip">Received: <span id="wb-received" style="color: #06d6a0;">₹0</span></div>
+                        <div class="chip">Remaining Baki: <span id="wb-pending" style="color: #ef476f;">₹0</span></div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="ledger-table" id="table-wing-b">
+                        <thead>
+                            <tr>
+                                <th>FLAT</th>
+                                <th>NAME</th>
+                                <th>OLD BAL</th>
+                                <th>METER 1st</th>
+                                <th>METER 31st</th>
+                                <th>WATER (L)</th>
+                                <th>WATER ADV</th>
+                                <th>NET WATER</th>
+                                <th>EXTRA (ELEC/SHAFT)</th>
+                                <th>MAINT.</th>
+                                <th>NEED TO PAY</th>
+                                <th style="background: rgba(255, 183, 3, 0.2);">PAYMENT RECVD (₹)</th>
+                                <th style="background: rgba(239, 71, 111, 0.15);">REMAINING DUE</th>
+                                <th>STATUS</th>
+                                <th>ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-wing-b">
+                            <!-- Injected by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- RECEIPT MODAL -->
+    <div class="modal-overlay" id="receiptModal">
+        <div class="modal-card">
+            <button class="close-modal" onclick="closeReceipt()">&times;</button>
+            <div id="receiptSlipContent"></div>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn btn-primary" onclick="printSingleReceipt()">🖨️ Print Slip</button>
+                <button class="btn" onclick="closeReceipt()">Band Karein</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* -------------------------------------------------------------
+           1. INITIAL DEFAULT DATA (AUG 2026 FROM PROVIDED RECORDS)
+        ------------------------------------------------------------- */
+        const RATE = 0.15;
+
+        const defaultWingA = [
+            { flat: "G1", name: "SK Sharma", oldBal: 0, rStart: 89850, rEnd: 95760, waterAdv: 1000, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "G2", name: "Nandan Singh Mehra", oldBal: 0, rStart: 228400, rEnd: 238760, waterAdv: 1000, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "G3", name: "Ajay Mishra", oldBal: 0, rStart: 316200, rEnd: 332280, waterAdv: 1280, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "G5", name: "Anoj Gupta", oldBal: 0, rStart: 143440, rEnd: 144220, waterAdv: 1000, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "A1", name: "Amit Soam", oldBal: 0, rStart: 149060, rEnd: 157570, waterAdv: 1000, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "A2", name: "Kanhaiya Kumar Jha", oldBal: 0, rStart: 224500, rEnd: 226730, waterAdv: 1800, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "A3", name: "Rajnish Kumar", oldBal: 0, rStart: 163140, rEnd: 171340, waterAdv: 500, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "A4", name: "Naresh Kumar", oldBal: 0, rStart: 200080, rEnd: 206840, waterAdv: 1000, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "A5", name: "Nitin Kumar Singh", oldBal: 0, rStart: 216680, rEnd: 228550, waterAdv: 724, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "B1", name: "Jitender Pratap", oldBal: 0, rStart: 187180, rEnd: 196660, waterAdv: 1000, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "B2", name: "Indrajeet Singh", oldBal: 0, rStart: 96840, rEnd: 104110, waterAdv: 1226, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "B3", name: "Ashish Choutala", oldBal: 0, rStart: 307880, rEnd: 317780, waterAdv: 1721, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "B4", name: "Naresh Jeonwal", oldBal: 0, rStart: 179250, rEnd: 188070, waterAdv: 1000, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "B5", name: "Bindu", oldBal: 3300, rStart: 0, rEnd: 0, waterAdv: 0, maint: 400, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "C1", name: "Aamir Khan/Aman", oldBal: 0, rStart: 124340, rEnd: 127600, waterAdv: 1000, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "C3", name: "Shailendra Kumar", oldBal: 0, rStart: 296260, rEnd: 309280, waterAdv: 975, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "C4", name: "Atul Singh", oldBal: 0, rStart: 136790, rEnd: 142410, waterAdv: 586, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "C5", name: "Krishna Jha", oldBal: 1266, rStart: 110170, rEnd: 118070, waterAdv: 1000, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "D1", name: "Rahul Verma", oldBal: 0, rStart: 267240, rEnd: 279380, waterAdv: 1445, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "D2", name: "Indra Singh", oldBal: 0, rStart: 266380, rEnd: 277050, waterAdv: 1335, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "D3", name: "Chandan Tiwari", oldBal: 0, rStart: 96220, rEnd: 100460, waterAdv: 902, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "D4", name: "Pawan Modi", oldBal: 0, rStart: 85990, rEnd: 91050, waterAdv: 912, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "D5", name: "Karan Singh", oldBal: 0, rStart: 135640, rEnd: 142950, waterAdv: 824, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "E1", name: "Rajni Verma", oldBal: 0, rStart: 208400, rEnd: 217650, waterAdv: 1200, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "E4", name: "E4 Flat", oldBal: 0, rStart: 99030, rEnd: 104760, waterAdv: 1000, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "E-3", name: "E-3 Flat", oldBal: 0, rStart: 99040, rEnd: 108260, waterAdv: 1000, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "E-5", name: "E-5 Flat", oldBal: 0, rStart: 89290, rEnd: 100440, waterAdv: 1000, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 }
+        ];
+
+        const defaultWingB = [
+            { flat: "G1", name: "G1 / Vacant", oldBal: 0, rStart: 0, rEnd: 0, waterAdv: 0, maint: 0, elec: 1040, shaft: 1000, needAdv: 0, recvd: 0 },
+            { flat: "G5", name: "G5 Resident", oldBal: 0, rStart: 0, rEnd: 0, waterAdv: 0, maint: 400, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "G3", name: "Mamta Dager", oldBal: 0, rStart: 0, rEnd: 0, waterAdv: 0, maint: 0, elec: 1040, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "G2", name: "Mahira Khan", oldBal: 2918, rStart: 72800, rEnd: 78050, waterAdv: 1002, maint: 1000, elec: 1040, shaft: 1000, needAdv: 0, recvd: 0 },
+            { flat: "G4", name: "Deepak Sah", oldBal: 0, rStart: 162990, rEnd: 170360, waterAdv: 868, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "A1", name: "Kamla Devi", oldBal: 0, rStart: 191450, rEnd: 203600, waterAdv: 1000, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "A2", name: "Maheswar Prasad Singh", oldBal: 0, rStart: 251150, rEnd: 262250, waterAdv: 1200, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "A3", name: "PRAKASH KUMAR", oldBal: 0, rStart: 154800, rEnd: 160060, waterAdv: 1000, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "A4", name: "Sujaan Singh", oldBal: 0, rStart: 0, rEnd: 0, waterAdv: 0, maint: 0, elec: 1040, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "A5", name: "Vishnu Tiwari", oldBal: 0, rStart: 187880, rEnd: 194440, waterAdv: 1144, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "A6", name: "Sumeet Shah", oldBal: 0, rStart: 145990, rEnd: 157820, waterAdv: 1000, maint: 1000, elec: 0, shaft: 0, needAdv: 1000, recvd: 0 },
+            { flat: "B1", name: "Sunita / Harendar Gujjar", oldBal: 0, rStart: 302520, rEnd: 311390, waterAdv: 1530, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "B2", name: "Anil Kumar", oldBal: 0, rStart: 212500, rEnd: 221960, waterAdv: 1098, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "B3", name: "Prakash Arya", oldBal: 0, rStart: 213080, rEnd: 220040, waterAdv: 1200, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "B4", name: "Ravishanker Singh", oldBal: 0, rStart: 250970, rEnd: 258660, waterAdv: 1003, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "B5", name: "Harpreet Singh", oldBal: 0, rStart: 171780, rEnd: 173640, waterAdv: 1001, maint: 1000, elec: 1040, shaft: 0, needAdv: 902, recvd: 0 },
+            { flat: "B6", name: "B/6 Flat", oldBal: 3515, rStart: 90110, rEnd: 106150, waterAdv: 1000, maint: 1000, elec: 1040, shaft: 1000, needAdv: 2000, recvd: 0 },
+            { flat: "C1", name: "Rajesh Kumar", oldBal: 0, rStart: 325510, rEnd: 337500, waterAdv: 2000, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "C2", name: "Chandan Rautela", oldBal: 0, rStart: 218600, rEnd: 227730, waterAdv: 1446, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "C3", name: "Mahendra Aswal", oldBal: 0, rStart: 171150, rEnd: 177800, waterAdv: 898, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "C4", name: "Akbar Ali", oldBal: 1000, rStart: 78550, rEnd: 82750, waterAdv: 706, maint: 1000, elec: 1040, shaft: 1000, needAdv: 0, recvd: 0 },
+            { flat: "C5", name: "Aman Rana", oldBal: 0, rStart: 85030, rEnd: 92660, waterAdv: 600, maint: 1000, elec: 0, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "C6", name: "Rahul Mishra", oldBal: 5562, rStart: 200610, rEnd: 200610, waterAdv: 0, maint: 0, elec: 1040, shaft: 1000, needAdv: 0, recvd: 0 },
+            { flat: "D1", name: "NISHANT", oldBal: 4326, rStart: 291430, rEnd: 302990, waterAdv: 1000, maint: 1000, elec: 1040, shaft: 1000, needAdv: 1000, recvd: 0 },
+            { flat: "D2", name: "Garima", oldBal: 6823, rStart: 29550, rEnd: 38530, waterAdv: 1000, maint: 1000, elec: 1040, shaft: 1000, needAdv: 1000, recvd: 0 },
+            { flat: "D3", name: "Erdward Kujur", oldBal: 0, rStart: 178900, rEnd: 185670, waterAdv: 1118, maint: 1000, elec: 1040, shaft: 0, needAdv: 0, recvd: 0 },
+            { flat: "D4", name: "Badal", oldBal: 3157, rStart: 125320, rEnd: 134710, waterAdv: 1156, maint: 1000, elec: 0, shaft: 0, needAdv: 1000, recvd: 0 },
+            { flat: "D5", name: "D/5 Vacant", oldBal: 0, rStart: 0, rEnd: 0, waterAdv: 0, maint: 0, elec: 1040, shaft: 1000, needAdv: 0, recvd: 0 },
+            { flat: "D6", name: "D/6 Vacant", oldBal: 0, rStart: 0, rEnd: 0, waterAdv: 0, maint: 0, elec: 1040, shaft: 1000, needAdv: 0, recvd: 0 }
+        ];
+
+        /* -------------------------------------------------------------
+           2. STATE & STORAGE MANAGEMENT
+        ------------------------------------------------------------- */
+        let state = {
+            activeMonth: "August 2026",
+            monthsList: ["August 2026"],
+            data: {
+                "August 2026": {
+                    wingA: JSON.parse(JSON.stringify(defaultWingA)),
+                    wingB: JSON.parse(JSON.stringify(defaultWingB))
+                }
+            }
+        };
+
+        function saveToStorage() {
+            localStorage.setItem("shree_jagannath_ledger_v2", JSON.stringify(state));
+        }
+
+        function loadFromStorage() {
+            const saved = localStorage.getItem("shree_jagannath_ledger_v2");
+            if (saved) {
+                try {
+                    state = JSON.parse(saved);
+                } catch(e) {
+                    console.error("Storage load error, falling back to default", e);
+                }
+            }
+        }
+
+        function resetToInitialData() {
+            if (confirm("Kya aap sach me sabhi records ko August 2026 ke initial default par reset karna chahte hain? Sabhi nayi entries delete ho jayengi!")) {
+                localStorage.removeItem("shree_jagannath_ledger_v2");
+                location.reload();
+            }
+        }
+
+        /* -------------------------------------------------------------
+           3. CALCULATION ENGINE
+        ------------------------------------------------------------- */
+        function calculateFlat(row) {
+            const litres = Math.max(0, (row.rEnd || 0) - (row.rStart || 0));
+            const grossWater = Math.round(litres * RATE * 100) / 100;
+            // Net water bill after credit allowance
+            let netWater = 0;
+            if (grossWater > (row.waterAdv || 0)) {
+                netWater = grossWater - (row.waterAdv || 0);
+            }
+
+            const extra = (row.elec || 0) + (row.shaft || 0);
+            const needToPay = Math.round((netWater + (row.maint || 0) + extra + (row.oldBal || 0) + (row.needAdv || 0)) * 100) / 100;
+            const remaining = Math.round((needToPay - (row.recvd || 0)) * 100) / 100;
+
+            let status = "unpaid";
+            if ((row.recvd || 0) >= needToPay && needToPay > 0) {
+                status = "paid";
+            } else if ((row.recvd || 0) > 0 && (row.recvd || 0) < needToPay) {
+                status = "partial";
+            } else if (needToPay === 0) {
+                status = "paid";
+            }
+
+            return { litres, grossWater, netWater, extra, needToPay, remaining, status };
+        }
+
+        /* -------------------------------------------------------------
+           4. RENDER TABLES & DOM UPDATES
+        ------------------------------------------------------------- */
+        function renderAll() {
+            populateMonthDropdown();
+
+            const curData = state.data[state.activeMonth];
+            if (!curData) return;
+
+            renderWingTable('wingA', curData.wingA, 'tbody-wing-a');
+            renderWingTable('wingB', curData.wingB, 'tbody-wing-b');
+            updateSummaryCards();
+            saveToStorage();
+        }
+
+        function populateMonthDropdown() {
+            const select = document.getElementById("monthSelect");
+            select.innerHTML = "";
+            state.monthsList.forEach(m => {
+                const opt = document.createElement("option");
+                opt.value = m;
+                opt.textContent = m;
+                if (m === state.activeMonth) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        function renderWingTable(wingKey, rows, tbodyId) {
+            const tbody = document.getElementById(tbodyId);
+            tbody.innerHTML = "";
+
+            rows.forEach((row, idx) => {
+                const calc = calculateFlat(row);
+                const tr = document.createElement("tr");
+
+                let statusBadge = '';
+                if (calc.status === 'paid') {
+                    statusBadge = '<span class="status-badge status-paid">✅ Paid</span>';
+                } else if (calc.status === 'partial') {
+                    statusBadge = '<span class="status-badge status-partial">⚠️ Partial</span>';
+                } else {
+                    statusBadge = '<span class="status-badge status-unpaid">❌ Unpaid</span>';
+                }
+
+                let balClass = 'bal-danger';
+                if (calc.remaining <= 0) balClass = 'bal-zero';
+                if (calc.remaining < 0) balClass = 'bal-advance';
+
+                if (wingKey === 'wingA') {
+                    tr.innerHTML = `
+                        <td><span class="flat-tag">${row.flat}</span></td>
+                        <td><span class="resident-name" title="${row.name}">${row.name}</span></td>
+                        <td>₹${(row.oldBal || 0).toLocaleString()}</td>
+                        <td><input type="number" class="editable-input reading-input" value="${row.rStart}" onchange="updateRowField('${wingKey}', ${idx}, 'rStart', this.value)"></td>
+                        <td><input type="number" class="editable-input reading-input" value="${row.rEnd}" onchange="updateRowField('${wingKey}', ${idx}, 'rEnd', this.value)"></td>
+                        <td style="font-weight: 700; color: #48cae4;">${calc.litres.toLocaleString()} L</td>
+                        <td>₹${(row.waterAdv || 0).toLocaleString()}</td>
+                        <td>₹${calc.netWater.toFixed(1)}</td>
+                        <td>₹${(row.maint || 0).toLocaleString()}</td>
+                        <td class="amt-need">₹${calc.needToPay.toLocaleString()}</td>
+                        <td>
+                            <input type="number" step="any" class="editable-input" value="${row.recvd || ''}" placeholder="0" 
+                                oninput="updatePayment('${wingKey}', ${idx}, this.value)">
+                        </td>
+                        <td class="amt-balance ${balClass}">₹${calc.remaining.toLocaleString()}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <button class="btn" style="padding: 4px 8px; font-size: 11px;" onclick="openReceipt('${wingKey}', ${idx})">🧾 Slip</button>
+                        </td>
+                    `;
+                } else {
+                    tr.innerHTML = `
+                        <td><span class="flat-tag" style="color: #48cae4; background: rgba(17, 138, 178, 0.2);">${row.flat}</span></td>
+                        <td><span class="resident-name" title="${row.name}">${row.name}</span></td>
+                        <td>₹${(row.oldBal || 0).toLocaleString()}</td>
+                        <td><input type="number" class="editable-input reading-input" value="${row.rStart}" onchange="updateRowField('${wingKey}', ${idx}, 'rStart', this.value)"></td>
+                        <td><input type="number" class="editable-input reading-input" value="${row.rEnd}" onchange="updateRowField('${wingKey}', ${idx}, 'rEnd', this.value)"></td>
+                        <td style="font-weight: 700; color: #48cae4;">${calc.litres.toLocaleString()} L</td>
+                        <td>₹${(row.waterAdv || 0).toLocaleString()}</td>
+                        <td>₹${calc.netWater.toFixed(1)}</td>
+                        <td style="font-size: 11.5px; color: #ffd166;">E: ₹${row.elec||0} | S: ₹${row.shaft||0}</td>
+                        <td>₹${(row.maint || 0).toLocaleString()}</td>
+                        <td class="amt-need">₹${calc.needToPay.toLocaleString()}</td>
+                        <td>
+                            <input type="number" step="any" class="editable-input" value="${row.recvd || ''}" placeholder="0" 
+                                oninput="updatePayment('${wingKey}', ${idx}, this.value)">
+                        </td>
+                        <td class="amt-balance ${balClass}">₹${calc.remaining.toLocaleString()}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <button class="btn" style="padding: 4px 8px; font-size: 11px;" onclick="openReceipt('${wingKey}', ${idx})">🧾 Slip</button>
+                        </td>
+                    `;
+                }
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        /* -------------------------------------------------------------
+           5. REAL-TIME ROW INTERACTION & RE-CALCULATION
+        ------------------------------------------------------------- */
+        function updatePayment(wingKey, index, val) {
+            const numericVal = parseFloat(val) || 0;
+            state.data[state.activeMonth][wingKey][index].recvd = numericVal;
+            
+            // Targeted update without re-rendering entire input focus
+            const row = state.data[state.activeMonth][wingKey][index];
+            const calc = calculateFlat(row);
+            const tbodyId = wingKey === 'wingA' ? 'tbody-wing-a' : 'tbody-wing-b';
+            const tr = document.getElementById(tbodyId).children[index];
+
+            if (tr) {
+                const balTd = tr.querySelector('.amt-balance');
+                balTd.textContent = `₹${calc.remaining.toLocaleString()}`;
+                balTd.className = `amt-balance ${calc.remaining <= 0 ? 'bal-zero' : (calc.remaining < 0 ? 'bal-advance' : 'bal-danger')}`;
+
+                const statusTd = tr.children[wingKey === 'wingA' ? 12 : 13];
+                if (calc.status === 'paid') {
+                    statusTd.innerHTML = '<span class="status-badge status-paid">✅ Paid</span>';
+                } else if (calc.status === 'partial') {
+                    statusTd.innerHTML = '<span class="status-badge status-partial">⚠️ Partial</span>';
+                } else {
+                    statusTd.innerHTML = '<span class="status-badge status-unpaid">❌ Unpaid</span>';
+                }
+            }
+
+            updateSummaryCards();
+            saveToStorage();
+        }
+
+        function updateRowField(wingKey, index, field, val) {
+            state.data[state.activeMonth][wingKey][index][field] = parseFloat(val) || 0;
+            renderAll();
+        }
+
+        function updateSummaryCards() {
+            const curData = state.data[state.activeMonth];
+            if (!curData) return;
+
+            let waLitres = 0, waDemand = 0, waRecvd = 0, waPending = 0;
+            let wbLitres = 0, wbDemand = 0, wbRecvd = 0, wbPending = 0;
+
+            curData.wingA.forEach(r => {
+                const c = calculateFlat(r);
+                waLitres += c.litres;
+                waDemand += c.needToPay;
+                waRecvd += (r.recvd || 0);
+                waPending += c.remaining;
+            });
+
+            curData.wingB.forEach(r => {
+                const c = calculateFlat(r);
+                wbLitres += c.litres;
+                wbDemand += c.needToPay;
+                wbRecvd += (r.recvd || 0);
+                wbPending += c.remaining;
+            });
+
+            // Wing A box summaries
+            document.getElementById("wa-flats-count").textContent = curData.wingA.length;
+            document.getElementById("wa-water-litres").textContent = `${waLitres.toLocaleString()} L`;
+            document.getElementById("wa-demand").textContent = `₹${Math.round(waDemand).toLocaleString()}`;
+            document.getElementById("wa-received").textContent = `₹${Math.round(waRecvd).toLocaleString()}`;
+            document.getElementById("wa-pending").textContent = `₹${Math.round(waPending).toLocaleString()}`;
+
+            // Wing B box summaries
+            document.getElementById("wb-flats-count").textContent = curData.wingB.length;
+            document.getElementById("wb-water-litres").textContent = `${wbLitres.toLocaleString()} L`;
+            document.getElementById("wb-demand").textContent = `₹${Math.round(wbDemand).toLocaleString()}`;
+            document.getElementById("wb-received").textContent = `₹${Math.round(wbRecvd).toLocaleString()}`;
+            document.getElementById("wb-pending").textContent = `₹${Math.round(wbPending).toLocaleString()}`;
+
+            // Master Society Total
+            const totDemand = waDemand + wbDemand;
+            const totRecvd = waRecvd + wbRecvd;
+            const totPending = waPending + wbPending;
+            const totWater = waLitres + wbLitres;
+            const recvdPct = totDemand > 0 ? Math.round((totRecvd / totDemand) * 100) : 0;
+
+            document.getElementById("kpi-total-demand").textContent = `₹${Math.round(totDemand).toLocaleString()}`;
+            document.getElementById("kpi-total-received").textContent = `₹${Math.round(totRecvd).toLocaleString()}`;
+            document.getElementById("kpi-total-pending").textContent = `₹${Math.round(totPending).toLocaleString()}`;
+            document.getElementById("kpi-total-water").textContent = `${totWater.toLocaleString()} L`;
+            document.getElementById("kpi-received-percent").textContent = `${recvdPct}% Collected (${(curData.wingA.length + curData.wingB.length)} Flats)`;
+        }
+
+        /* -------------------------------------------------------------
+           6. MONTH SWITCHING & AUTO-GENERATION TO NEXT MONTH
+        ------------------------------------------------------------- */
+        function switchMonth(mName) {
+            state.activeMonth = mName;
+            renderAll();
+        }
+
+        function generateNextMonth() {
+            const current = state.activeMonth;
+            let suggestedNext = "September 2026";
+            if (current.includes("August 2026")) suggestedNext = "September 2026";
+            else if (current.includes("September 2026")) suggestedNext = "October 2026";
+            else if (current.includes("October 2026")) suggestedNext = "November 2026";
+            else if (current.includes("November 2026")) suggestedNext = "December 2026";
+            else suggestedNext = `Agla Mahina (${state.monthsList.length + 1})`;
+
+            const nextName = prompt("Naye mahine ka naam darj karein:", suggestedNext);
+            if (!nextName || nextName.trim() === "") return;
+
+            const trimmedName = nextName.trim();
+            if (state.monthsList.includes(trimmedName)) {
+                alert("Ye mahina pehle se hi bana hua hai! Dropdown se select karein.");
+                return;
+            }
+
+            // AUTO CARRY FORWARD LOGIC:
+            // 1. Previous month remaining balance becomes new OLD BAL
+            // 2. Previous month 31st meter reading becomes 1st meter reading
+            // 3. Payment received resets to 0
+            const prevData = state.data[current];
+
+            const newWingA = prevData.wingA.map(row => {
+                const c = calculateFlat(row);
+                return {
+                    flat: row.flat,
+                    name: row.name,
+                    oldBal: c.remaining > 0 ? c.remaining : 0, // Unpaid balance carries forward
+                    rStart: row.rEnd || row.rStart,            // End reading becomes start reading
+                    rEnd: row.rEnd || row.rStart,              // Default reading
+                    waterAdv: row.waterAdv || 1000,
+                    maint: row.maint || 1000,
+                    elec: 0,
+                    shaft: 0,
+                    needAdv: 0,
+                    recvd: 0                                   // Fresh payment entry for new month
+                };
+            });
+
+            const newWingB = prevData.wingB.map(row => {
+                const c = calculateFlat(row);
+                return {
+                    flat: row.flat,
+                    name: row.name,
+                    oldBal: c.remaining > 0 ? c.remaining : 0, // Unpaid balance carries forward
+                    rStart: row.rEnd || row.rStart,
+                    rEnd: row.rEnd || row.rStart,
+                    waterAdv: row.waterAdv || 1000,
+                    maint: row.maint || 1000,
+                    elec: 0,                                   // One-time repair resets
+                    shaft: 0,
+                    needAdv: 0,
+                    recvd: 0
+                };
+            });
+
+            state.monthsList.push(trimmedName);
+            state.data[trimmedName] = { wingA: newWingA, wingB: newWingB };
+            state.activeMonth = trimmedName;
+
+            alert(`✅ ${trimmedName} safaltapoorvak generate ho gaya!\n\nPichle mahine (${current}) ka baki balance automatically agle mahine ke 'OLD BAL' me carry forward ho gaya hai!`);
+            renderAll();
+        }
+
+        /* -------------------------------------------------------------
+           7. VIEW TOGGLING & SEARCH
+        ------------------------------------------------------------- */
+        function switchWingView(view, btn) {
+            document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            const boxA = document.getElementById("box-wing-a");
+            const boxB = document.getElementById("box-wing-b");
+
+            if (view === 'all') {
+                boxA.style.display = 'block';
+                boxB.style.display = 'block';
+            } else if (view === 'wing-a') {
+                boxA.style.display = 'block';
+                boxB.style.display = 'none';
+            } else if (view === 'wing-b') {
+                boxA.style.display = 'none';
+                boxB.style.display = 'block';
+            }
+        }
+
+        function filterTables() {
+            const term = document.getElementById("searchInput").value.toLowerCase();
+            ['tbody-wing-a', 'tbody-wing-b'].forEach(tbodyId => {
+                const rows = document.getElementById(tbodyId).getElementsByTagName('tr');
+                for (let r of rows) {
+                    const text = r.textContent.toLowerCase();
+                    r.style.display = text.includes(term) ? '' : 'none';
+                }
+            });
+        }
+
+        /* -------------------------------------------------------------
+           8. PRINTABLE RECEIPT SLIP MODAL
+        ------------------------------------------------------------- */
+        function openReceipt(wingKey, idx) {
+            const row = state.data[state.activeMonth][wingKey][idx];
+            const c = calculateFlat(row);
+            const wingName = wingKey === 'wingA' ? 'WING-A' : 'WING-B';
+
+            const html = `
+                <div class="receipt-slip" id="printSlipArea">
+                    <div class="slip-header">
+                        <h2 style="font-size: 18px; margin-bottom: 4px;">SHREE JAGANNATH APARTMENT</h2>
+                        <div style="font-size: 12px; color: #555;">Maintenance & Water Bill Receipt</div>
+                        <div style="font-size: 12px; font-weight: bold; margin-top: 4px;">Bill Month: ${state.activeMonth}</div>
+                    </div>
+                    <div class="slip-row"><span>Flat Number:</span> <b>${row.flat} (${wingName})</b></div>
+                    <div class="slip-row"><span>Resident Name:</span> <b>${row.name}</b></div>
+                    <div class="slip-row"><span>Meter 1st -> 31st:</span> <span>${row.rStart} to ${row.rEnd}</span></div>
+                    <div class="slip-row"><span>Water Consumed:</span> <span>${c.litres.toLocaleString()} Litres</span></div>
+                    <div class="slip-row"><span>Gross Water Amount:</span> <span>₹${c.grossWater.toFixed(2)}</span></div>
+                    <div class="slip-row"><span>Water Advance Adj.:</span> <span>- ₹${(row.waterAdv||0).toFixed(2)}</span></div>
+                    <div class="slip-row"><span>Net Water Payable:</span> <span>₹${c.netWater.toFixed(2)}</span></div>
+                    <div class="slip-row"><span>Society Maintenance:</span> <span>₹${(row.maint||0).toFixed(2)}</span></div>
+                    ${c.extra > 0 ? `<div class="slip-row"><span>Repairs (Elec/Shaft):</span> <span>₹${c.extra.toFixed(2)}</span></div>` : ''}
+                    <div class="slip-row"><span>Previous Arrears (Old Bal):</span> <span>₹${(row.oldBal||0).toFixed(2)}</span></div>
+                    
+                    <div class="slip-total slip-row">
+                        <span>TOTAL DEMAND (Need to Pay):</span>
+                        <span>₹${c.needToPay.toLocaleString()}</span>
+                    </div>
+
+                    <div class="slip-row" style="color: #06d6a0; font-weight: bold;">
+                        <span>Payment Received:</span>
+                        <span>₹${(row.recvd||0).toLocaleString()}</span>
+                    </div>
+
+                    <div class="slip-row" style="color: #ef476f; font-weight: bold; font-size: 15px;">
+                        <span>BALANCE DUE (Baki Rashi):</span>
+                        <span>₹${c.remaining.toLocaleString()}</span>
+                    </div>
+
+                    <div style="margin-top: 25px; display: flex; justify-content: space-between; font-size: 11px; border-top: 1px dotted #888; padding-top: 15px;">
+                        <span>Authorised Signatory</span>
+                        <span>Date: ${new Date().toLocaleDateString('en-IN')}</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById("receiptSlipContent").innerHTML = html;
+            document.getElementById("receiptModal").style.display = "flex";
+        }
+
+        function closeReceipt() {
+            document.getElementById("receiptModal").style.display = "none";
+        }
+
+        function printSingleReceipt() {
+            const printContent = document.getElementById("printSlipArea").innerHTML;
+            const originalContent = document.body.innerHTML;
+            document.body.innerHTML = printContent;
+            window.print();
+            document.body.innerHTML = originalContent;
+            location.reload();
+        }
+
+        /* -------------------------------------------------------------
+           9. CSV EXPORT
+        ------------------------------------------------------------- */
+        function exportToCSV() {
+            const curData = state.data[state.activeMonth];
+            let csv = "Wing,Flat,Name,OldBal,MeterStart,MeterEnd,WaterLitres,NetWater,Maintenance,ExtraRepairs,NeedToPay,PaymentReceived,BalanceDue,Status\n";
+
+            ['wingA', 'wingB'].forEach(wingKey => {
+                curData[wingKey].forEach(r => {
+                    const c = calculateFlat(r);
+                    csv += `"${wingKey.toUpperCase()}","${r.flat}","${r.name}",${r.oldBal},${r.rStart},${r.rEnd},${c.litres},${c.netWater},${r.maint},${c.extra},${c.needToPay},${r.recvd||0},${c.remaining},"${c.status}"\n`;
+                });
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `Shree_Jagannath_Maint_${state.activeMonth.replace(/\s+/g, '_')}.csv`);
+            a.click();
+        }
+
+        /* -------------------------------------------------------------
+           10. ARTISTIC CANVAS ANIMATION: JAGANNATH TEMPLE + APARTMENT
+        ------------------------------------------------------------- */
+        const canvas = document.getElementById("bg-canvas");
+        const ctx = canvas.getContext("2d");
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        }
+
+        function initParticles() {
+            particles = [];
+            const count = Math.floor(canvas.width / 22);
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 2.2 + 0.5,
+                    speedY: Math.random() * 0.45 + 0.15,
+                    opacity: Math.random() * 0.7 + 0.2
+                });
+            }
+        }
+
+        function drawTemple(cx, baseY, scale) {
+            ctx.save();
+            ctx.translate(cx, baseY);
+            ctx.scale(scale, scale);
+
+            // Shikhara base silhouette
+            ctx.fillStyle = "rgba(22, 17, 30, 0.95)";
+            ctx.beginPath();
+            ctx.moveTo(-110, 0);
+            ctx.lineTo(-95, -120);
+            ctx.quadraticCurveTo(-75, -260, 0, -320); // Curvilinear rekha deula
+            ctx.quadraticCurveTo(75, -260, 95, -120);
+            ctx.lineTo(110, 0);
+            ctx.closePath();
+            ctx.fill();
+
+            // Temple tiers / horizontal facets
+            ctx.strokeStyle = "rgba(255, 183, 3, 0.15)";
+            ctx.lineWidth = 2;
+            for(let y = -40; y > -280; y -= 35) {
+                ctx.beginPath();
+                ctx.moveTo(-90 * (1 - Math.abs(y)/340), y);
+                ctx.lineTo(90 * (1 - Math.abs(y)/340), y);
+                ctx.stroke();
+            }
+
+            // Jagamohana (Front pyramidal hall)
+            ctx.beginPath();
+            ctx.moveTo(-160, 0);
+            ctx.lineTo(-70, -110);
+            ctx.lineTo(-20, 0);
+            ctx.closePath();
+            ctx.fillStyle = "rgba(18, 14, 25, 0.95)";
+            ctx.fill();
+
+            // Amla / Kalasa at top
+            ctx.fillStyle = "rgba(255, 183, 3, 0.7)";
+            ctx.beginPath();
+            ctx.ellipse(0, -328, 22, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Neelachakra (Divine Wheel)
+            ctx.strokeStyle = "#ffb703";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(0, -348, 14, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Patitapabana Flag (Fluttering Dhwaja)
+            const wave = Math.sin(Date.now() / 320) * 8;
+            ctx.fillStyle = "#fb8500";
+            ctx.beginPath();
+            ctx.moveTo(0, -362);
+            ctx.lineTo(38, -370 + wave);
+            ctx.lineTo(0, -378);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function drawApartmentBuilding(bx, baseY, w, h) {
+            ctx.save();
+            ctx.fillStyle = "rgba(12, 18, 30, 0.92)";
+            ctx.fillRect(bx, baseY - h, w, h);
+
+            // Roof water tank & structure
+            ctx.fillRect(bx + 15, baseY - h - 25, 40, 25);
+            ctx.fillStyle = "rgba(255, 183, 3, 0.4)";
+            ctx.fillRect(bx + w - 30, baseY - h - 35, 4, 35); // Antenna
+
+            // Windows with subtle golden night glow
+            const floors = Math.floor(h / 32);
+            const cols = Math.floor(w / 28);
+            for(let r = 0; r < floors; r++) {
+                for(let c = 0; c < cols; c++) {
+                    const wx = bx + 10 + c * 26;
+                    const wy = baseY - h + 15 + r * 30;
+                    const isLit = (Math.sin(r * 4 + c * 9 + Date.now()/12000) > 0.1);
+                    ctx.fillStyle = isLit ? "rgba(255, 209, 102, 0.55)" : "rgba(35, 45, 68, 0.6)";
+                    ctx.fillRect(wx, wy, 14, 18);
+                }
+            }
+            ctx.restore();
+        }
+
+        function animateBg() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Sacred golden embers / stars ascending
+            ctx.fillStyle = "rgba(255, 215, 0, 0.6)";
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 183, 3, ${p.opacity})`;
+                ctx.fill();
+
+                p.y -= p.speedY;
+                if (p.y < -10) {
+                    p.y = canvas.height + 10;
+                    p.x = Math.random() * canvas.width;
+                }
+            });
+
+            // Horizon skyline
+            const baseY = canvas.height;
+
+            // Draw Jagannath Temple (Left / Center-left)
+            const templeX = canvas.width > 900 ? canvas.width * 0.22 : canvas.width * 0.5;
+            const templeScale = canvas.width > 900 ? 1.05 : 0.75;
+            drawTemple(templeX, baseY, templeScale);
+
+            // Draw Modern Apartment Buildings (Right / Center-right)
+            if (canvas.width > 700) {
+                drawApartmentBuilding(canvas.width * 0.62, baseY, 150, 420);
+                drawApartmentBuilding(canvas.width * 0.76, baseY, 180, 500);
+                drawApartmentBuilding(canvas.width * 0.90, baseY, 130, 360);
+            }
+
+            requestAnimationFrame(animateBg);
+        }
+
+        window.addEventListener("resize", resizeCanvas);
+
+        // INITIALIZE ON LOAD
+        window.addEventListener("DOMContentLoaded", () => {
+            loadFromStorage();
+            resizeCanvas();
+            animateBg();
+            renderAll();
+        });
+    </script>
+</body>
+</html>
